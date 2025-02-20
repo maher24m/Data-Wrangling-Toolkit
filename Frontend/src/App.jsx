@@ -1,35 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import Spreadsheet from "react-spreadsheet";
+import Toolbar from "./components/Toolbar";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [tools, setTools] = useState(["File", "Undo", "Redo", "Analyze", "Visual", "Transformation", "Plugins"]);
+
+  // Generate sample data
+  const generateData = () => {
+    let rows = [];
+    for (let i = 0; i < 20; i++) {
+      let row = [];
+      for (let j = 0; j < 6; j++) {
+        row.push({ value: Math.floor(Math.random() * 100) + 60 }); // Random % values
+      }
+      rows.push(row);
+    }
+    return rows;
+  };
+
+  const [data, setData] = useState(generateData());
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="app-container">
+      <Toolbar tools={tools} />
+      <div className="content">
+        <h2 className="dataset-title">Dataset Name: Student Performance</h2>
+        <div className="spreadsheet-container">
+          <Spreadsheet data={data} onChange={setData} />
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default App
+export default App;

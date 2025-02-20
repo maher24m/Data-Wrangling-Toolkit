@@ -1,17 +1,15 @@
 import React from "react";
-import "./Toolbar.css"; // Import CSS for styling
+import "./Toolbar.css";
 
-const Toolbar = () => {
-  const tools = ["File", "Undo", "Redo", "Analyze", "Visual", "Transformation", "Plugins"]; // needs to be non-static
-
+const Toolbar = ({ tools }) => {
   return (
-    <div className="toolbar">
+    <nav className="toolbar">
       {tools.map((tool, index) => (
-        <button key={index} className="toolbar-button">
+        <button key={index} className="btn btn-secondary">
           {tool}
         </button>
       ))}
-    </div>
+    </nav>
   );
 };
 
