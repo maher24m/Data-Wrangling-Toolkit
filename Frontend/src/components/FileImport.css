@@ -1,0 +1,105 @@
+/* File Import Container */
+.file-import-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  width: 50%;
+  max-width: 600px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+/* Drag & Drop Area */
+.drop-zone {
+  border: 2px dashed #007bff;
+  padding: 20px;
+  width: 100%;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: background 0.3s;
+}
+
+.drop-zone:hover {
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.drop-zone p {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Hide default file input */
+.file-input {
+  display: none;
+}
+
+/* Upload Button */
+.upload-btn {
+  background: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: inline-block;
+}
+
+.upload-btn:hover {
+  background: #0056b3;
+}
+
+/* File Name Display */
+.file-name {
+  margin-top: 10px;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Number of Rows Input */
+.num-rows-input {
+  margin: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 80px;
+  text-align: center;
+}
+
+/* Preview Table */
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.preview-table th,
+.preview-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.preview-table th {
+  background-color: #f4f4f4;
+}
+
+/* Import Button */
+.import-btn {
+  margin-top: 15px;
+  background: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.import-btn:hover {
+  background: #218838;
+}

@@ -36,10 +36,9 @@
 /* Spreadsheet Container - Full Width */
 .spreadsheet-container {
   display: flex;
-  align-items: center;
   justify-content: center;
   background: white;
-  padding: 20px;
+  padding: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   width: 100%;
@@ -54,3 +53,29 @@
   max-width: 100%;
   height: auto;
 }
+
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.pagination-controls button {
+  margin: 0 10px;
+  padding: 8px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.pagination-controls button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+
+
