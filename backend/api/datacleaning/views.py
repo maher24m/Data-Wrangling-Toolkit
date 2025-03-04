@@ -1,24 +1,34 @@
 from django.views import View
 from django.http import JsonResponse
-import pandas as pd
-from api.storage import get_dataset, save_dataset
+from datasets.manager import DatasetManager
 
-class DataCleaningView(View):
-    """Handles dataset cleaning operations"""
-    def post(self, request, dataset_name):
-        dataset = get_dataset(dataset_name)
+class DatasetListView(View):
+    """Returns a list of available datasets"""
+    def get(self, request):
+        datasets = DatasetManager.list_datasets()
+        active_dataset = DatasetManager.get_active_dataset()
+        return JsonResponse({
+            "datasets": datasets,
+            "active_dataset": active_dataset
+        })
+
+class DatasetDetailView(View):
+    """Fetches the currently active dataset"""
+    def get(self, request):
+        dataset = DatasetManager.get_active_dataset()
+        if dataset is None:
+            return JsonResponse({"error": "No active dataset selected"}, status=404)
+        return JsonResponse({"data": dataset})
+
+    def post(self, request):
+        """Set a dataset as active"""
+        dataset_name = request.POST.get("dataset_name")
+        if not dataset_name:
+            return JsonResponse({"error": "Dataset name required"}, status=400)
+
+        dataset = DatasetManager.get_dataset(dataset_name)
         if dataset is None:
             return JsonResponse({"error": "Dataset not found"}, status=404)
 
-        operation = request.POST.get("operation")
-        df = pd.DataFrame(dataset)
-
-        if operation == "remove_nulls":
-            df = df.dropna()
-        elif operation == "remove_duplicates":
-            df = df.drop_duplicates()
-        else:
-            return JsonResponse({"error": "Unsupported cleaning operation"}, status=400)
-
-        save_dataset(dataset_name, df.to_dict(orient="records"))
-        return JsonResponse({"success": True, "message": f"Performed {operation}"})
+        DatasetManager.set_active_dataset(dataset_name)
+        return JsonResponse({"success": True, "active_dataset": dataset_name})

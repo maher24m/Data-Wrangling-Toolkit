@@ -1,30 +1,42 @@
 from django.views import View
 from django.http import JsonResponse
-import pandas as pd
-from api.storage import get_dataset, save_dataset
-import numpy as np
+from datasets.manager import DatasetManager
+from transformations.factory import TransformationProcessorFactory
+import json
 
 class ApplyTransformationView(View):
-    """Applies transformations to a dataset"""
-    def post(self, request, dataset_name):
-        dataset = get_dataset(dataset_name)
-        if dataset is None:
+    """Applies transformations to the active dataset"""
+    
+    def post(self, request):
+        dataset_name = request.POST.get("dataset_name")
+        transformations = request.POST.getlist("transformations")  # Expecting a JSON list
+
+        if not dataset_name or not transformations:
+            return JsonResponse({"error": "Missing required parameters"}, status=400)
+
+        try:
+            transformations = json.loads(transformations[0])  # Parse JSON array
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format for transformations"}, status=400)
+
+        df = DatasetManager.get_dataset(dataset_name)
+        if df is None:
             return JsonResponse({"error": "Dataset not found"}, status=404)
 
-        column = request.POST.get("column")
-        transformation = request.POST.get("transformation")
+        try:
+            for transformation in transformations:
+                transformation_type = transformation.get("type")
+                column_name = transformation.get("column")
 
-        df = pd.DataFrame(dataset)
+                if column_name not in df.columns:
+                    return JsonResponse({"error": f"Column '{column_name}' not found"}, status=400)
 
-        if column not in df.columns:
-            return JsonResponse({"error": "Invalid column name"}, status=400)
+                processor = TransformationProcessorFactory.get_processor(transformation_type)
+                df = processor.apply(df, column_name)
 
-        if transformation == "normalize":
-            df[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
-        elif transformation == "log":
-            df[column] = df[column].apply(lambda x: 0 if x <= 0 else np.log(x))
-        else:
-            return JsonResponse({"error": "Unsupported transformation"}, status=400)
+            transformed_name = f"{dataset_name}_transformed"
+            DatasetManager.save_dataset(transformed_name, df.to_dict(orient="records"))
+            return JsonResponse({"success": True, "dataset": transformed_name})
 
-        save_dataset(dataset_name, df.to_dict(orient="records"))
-        return JsonResponse({"success": True, "message": f"Applied {transformation} to {column}"})
+        except Exception as e:
+            return JsonResponse({"error": "Transformation failed", "details": str(e)}, status=500)

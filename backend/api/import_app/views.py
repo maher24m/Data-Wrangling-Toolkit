@@ -1,24 +1,30 @@
 from django.views import View
 from django.http import JsonResponse
-import pandas as pd
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from api.storage import save_dataset
+from backend.api.import_app.processor import FileProcessorFactory
 
+@method_decorator(csrf_exempt, name="dispatch") # Disable CSRF for this view
 class FileUploadView(View):
     """Uploads a dataset file and stores it."""
+    
     def post(self, request):
         if "file" not in request.FILES or "dataset_name" not in request.POST:
             return JsonResponse({"error": "File and dataset name required"}, status=400)
 
         dataset_name = request.POST["dataset_name"]
         uploaded_file = request.FILES["file"]
+        file_type = uploaded_file.content_type  # Detect file type
 
-        # Process CSV or Excel
-        if uploaded_file.content_type == "text/csv":
-            df = pd.read_csv(uploaded_file)
-        elif "spreadsheet" in uploaded_file.content_type or "excel" in uploaded_file.content_type:
-            df = pd.read_excel(uploaded_file)
-        else:
-            return JsonResponse({"error": "Unsupported file format"}, status=400)
+        try:
+            processor = FileProcessorFactory.get_processor(file_type)
+            df = processor.process(uploaded_file)
+        except ValueError as e:
+            return JsonResponse({"error": str(e)}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": "Failed to process file", "details": str(e)}, status=500)
 
+        # Store dataset
         save_dataset(dataset_name, df.to_dict(orient="records"))
-        return JsonResponse({"success": True, "dataset_name": dataset_name})
+        return JsonResponse({"success": True, "dataset_name": dataset_name, "columns": df.columns.tolist()})

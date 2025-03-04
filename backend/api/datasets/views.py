@@ -1,17 +1,16 @@
 from django.views import View
 from django.http import JsonResponse
-from api.storage import list_datasets, get_dataset
-
-class DatasetListView(View):
-    """Returns a list of available datasets"""
-    def get(self, request):
-        return JsonResponse({"datasets": list_datasets()})
+from api.storage import get_dataset
 
 class DatasetDetailView(View):
-    """Fetches a dataset by name"""
+    """Fetches a dataset but limits the number of rows returned for performance."""
+
     def get(self, request, dataset_name):
         dataset = get_dataset(dataset_name)
         if dataset is None:
             return JsonResponse({"error": "Dataset not found"}, status=404)
 
-        return JsonResponse({"data": dataset})
+        max_rows = int(request.GET.get("limit", 1000))  # Limit rows (default: 1000)
+        df = dataset.head(max_rows)  # Load only required rows
+
+        return JsonResponse({"data": df.to_dict(orient="records")})

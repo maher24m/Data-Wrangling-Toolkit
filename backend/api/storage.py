@@ -1,21 +1,22 @@
 import pandas as pd
+import os
 
-# Global storage for datasets (use a database in production)
-DATASET_STORAGE = {}
+DATASET_STORAGE = {}  # Temporary in-memory storage, but should be DB-backed
 
-def get_dataset(dataset_name):
-    """Retrieve a dataset if it exists"""
-    return DATASET_STORAGE.get(dataset_name, None)
+def save_dataset(name, data):
+    """Save dataset efficiently using Parquet (faster than CSV)."""
+    file_path = f"datasets/{name}.parquet"
+    df = pd.DataFrame(data)
+    df.to_parquet(file_path, compression="snappy")
+    DATASET_STORAGE[name] = file_path  # Store reference to file
+    return file_path
 
-def save_dataset(dataset_name, df):
-    """Save a dataset into storage"""
-    DATASET_STORAGE[dataset_name] = df
+def get_dataset(name, chunk_size=None):
+    """Load dataset in chunks to reduce memory usage."""
+    file_path = DATASET_STORAGE.get(name)
+    if not file_path or not os.path.exists(file_path):
+        return None
 
-def delete_dataset(dataset_name):
-    """Remove a dataset from storage"""
-    if dataset_name in DATASET_STORAGE:
-        del DATASET_STORAGE[dataset_name]
-
-def list_datasets():
-    """Return a list of all stored datasets"""
-    return list(DATASET_STORAGE.keys())
+    if chunk_size:
+        return pd.read_parquet(file_path, engine="pyarrow", chunksize=chunk_size)  # Load in chunks
+    return pd.read_parquet(file_path, engine="pyarrow")
