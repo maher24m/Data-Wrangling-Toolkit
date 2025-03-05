@@ -1,4 +1,4 @@
-from import_app.processor import FileProcessor
+from api.import_app.processor import FileProcessor
 
 class FileProcessorFactory:
     """Factory for creating file processors dynamically"""

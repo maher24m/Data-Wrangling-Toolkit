@@ -3,9 +3,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from api.storage import save_dataset
-from backend.api.import_app.processor import FileProcessorFactory
+from api.import_app.factory import FileProcessorFactory
 
-@method_decorator(csrf_exempt, name="dispatch") # Disable CSRF for this view
+
+@method_decorator(csrf_exempt, name="dispatch")  # 🔥 Disable CSRF for this view
 class FileUploadView(View):
     """Uploads a dataset file and stores it."""
     
@@ -28,3 +29,12 @@ class FileUploadView(View):
         # Store dataset
         save_dataset(dataset_name, df.to_dict(orient="records"))
         return JsonResponse({"success": True, "dataset_name": dataset_name, "columns": df.columns.tolist()})
+
+@method_decorator(csrf_exempt, name="dispatch")
+class AvailableImportToolsView(View):
+    """Returns a list of available file import processors from the factory"""
+
+    def get(self, request):
+        return JsonResponse({
+            "import_tools": list(FileProcessorFactory._processors.keys())
+        })

@@ -1,7 +1,7 @@
 from django.views import View
 from django.http import JsonResponse
-from datasets.manager import DatasetManager
-from transformations.factory import TransformationProcessorFactory
+from api.datasets.manager import DatasetManager
+from api.transformations.factory import TransformationProcessorFactory
 import json
 
 class ApplyTransformationView(View):

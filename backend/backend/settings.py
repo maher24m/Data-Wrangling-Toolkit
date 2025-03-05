@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     # 🔥 Modular apps
     "api.datasets",
     "api.import_app",  # Renamed to avoid conflict with Python’s "import"
-    "api.export",
+    "api.export_app",
     "api.transformations",
     "api.visualisations",
     "api.analysis",

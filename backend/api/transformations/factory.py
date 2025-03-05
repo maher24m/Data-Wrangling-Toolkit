@@ -1,3 +1,4 @@
+from api.transformations.processor import TransformationProcessor
 class TransformationProcessorFactory:
     """Factory for creating transformation processors dynamically."""
     _processors = {}

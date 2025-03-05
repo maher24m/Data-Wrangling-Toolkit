@@ -1,77 +1,130 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Spreadsheet from "react-spreadsheet";
 import Toolbar from "./components/Toolbar";
 import FileImport from "./components/FileImport";
-import "bootstrap/dist/css/bootstrap.min.css";
+import TransformationPanel from "./components/TransformationPanel";
+import SpreadsheetComponent from "./components/SpreadsheetComponent";
 import "./App.css";
 
 const App = () => {
-  const [selectedDataset, setSelectedDataset] = useState(null);
-  const [fileData, setFileData] = useState([]);
-  const [totalRows, setTotalRows] = useState(0);
-  const [page, setPage] = useState(1);
-  const limit = 100; // Max rows per page
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [datasets, setDatasets] = useState([]);
+  const [activeDataset, setActiveDataset] = useState(null);
+  const [spreadsheetData, setSpreadsheetData] = useState([]);
+  const [availableTransformations, setAvailableTransformations] = useState([]);
+  const [availableImportTools, setAvailableImportTools] = useState([]);
 
-  // Handle file upload & select dataset
-  const handleFileUpload = (data, datasetName) => {
-    setSelectedDataset(datasetName);
-    setPage(1); // Reset to page 1
-    fetchDataset(datasetName, 1);
+  /** 🔥 Fetch Available Datasets **/
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/api/datasets/")
+      .then(response => {
+        setDatasets(response.data.datasets);
+        setActiveDataset(response.data.active_dataset);
+        if (response.data.active_dataset) {
+          fetchDatasetData(response.data.active_dataset);
+        }
+      })
+      .catch(error => console.error("Error fetching datasets:", error));
+  }, []);
+
+  /** 🔥 Fetch Available Import Tools **/
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/api/import/tools/")
+      .then(response => setAvailableImportTools(response.data.available_import_tools))
+      .catch(error => console.error("Error fetching import tools:", error));
+  }, []);
+
+  /** 🔥 Fetch Available Transformations **/
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/api/transformations/tools/")
+      .then(response => setAvailableTransformations(response.data.available_transformations))
+      .catch(error => console.error("Error fetching transformations:", error));
+  }, []);
+
+  /** 🔥 Fetch Dataset Data for Spreadsheet **/
+  const fetchDatasetData = (datasetName) => {
+    axios.get(`http://127.0.0.1:8000/api/datasets/${datasetName}/`)
+      .then(response => {
+        const formattedData = response.data.data.map(row =>
+          Object.values(row).map(value => ({ value }))
+        );
+        setSpreadsheetData(formattedData);
+      })
+      .catch(error => console.error("Error fetching dataset:", error));
   };
 
-  // Fetch dataset from backend with pagination
-  const fetchDataset = (datasetName, pageNumber) => {
-    axios.get(`http://127.0.0.1:8000/api/dataset/${datasetName}/?page=${pageNumber}&limit=${limit}`)
-      .then((response) => {
-        setFileData(response.data.data);
-        setTotalRows(response.data.total_rows);
-        setPage(pageNumber);
-      });
+  /** 🔥 Handle File Upload **/
+  const handleFileUpload = (datasetName) => {
+    setDatasets([...datasets, datasetName]);
+    setActiveDataset(datasetName);
+    fetchDatasetData(datasetName);
+    setShowImportModal(false);
   };
 
-  // Handle next/previous page
-  const handlePageChange = (newPage) => {
-    if (newPage > 0 && newPage <= Math.ceil(totalRows / limit)) {
-      fetchDataset(selectedDataset, newPage);
-    }
+  /** 🔥 Handle Dataset Selection **/
+  const handleDatasetSelection = (datasetName) => {
+    setActiveDataset(datasetName);
+    fetchDatasetData(datasetName);
+  };
+
+  /** 🔥 Handle Spreadsheet Data Change **/
+  const handleSpreadsheetChange = (newData) => {
+    setSpreadsheetData(newData);
+  };
+
+  /** 🔥 Save Dataset to Backend **/
+  const saveDataset = () => {
+    if (!activeDataset) return;
+
+    const formattedData = spreadsheetData.map(row => {
+      return row.reduce((acc, cell, index) => {
+        acc[`column${index + 1}`] = cell.value;
+        return acc;
+      }, {});
+    });
+
+    axios.post(`http://127.0.0.1:8000/api/datasets/${activeDataset}/save/`, {
+      data: formattedData
+    }).then(() => {
+      alert("Dataset saved successfully!");
+    }).catch(error => {
+      console.error("Error saving dataset:", error);
+    });
   };
 
   return (
     <div className="app-container">
-      <Toolbar tools={["File", "Undo", "Redo", "Analyze", "Visual", "Transformation", "Plugins"]} />
+      {/* 🔥 Top Toolbar for Navigation */}
+      <Toolbar 
+        tools={["Analyze", "Visualize", "Transform", "Export"]}
+        onOpenImport={() => setShowImportModal(true)}
+        onSave={saveDataset}
+      />
 
-      <div className="content">
-        {!selectedDataset ? (
-          <FileImport onFileUpload={handleFileUpload} />
-        ) : (
-          <>
-            <h2 className="dataset-title">Dataset: {selectedDataset}</h2>
-            <div className="spreadsheet-container">
-              <Spreadsheet data={fileData} onChange={() => {}} />
-            </div>
+      {/* 🔥 Dataset Import Modal */}
+      {showImportModal && (
+        <FileImport 
+          onFileUpload={handleFileUpload} 
+          availableImportTools={availableImportTools}
+        />
+      )}
 
-            {/* Pagination Controls */}
-            <div className="pagination-controls">
-              <button 
-                className="btn btn-secondary"
-                onClick={() => handlePageChange(page - 1)}
-                disabled={page === 1}
-              >
-                Previous
-              </button>
-              <span> Page {page} of {Math.ceil(totalRows / limit)} </span>
-              <button 
-                className="btn btn-secondary"
-                onClick={() => handlePageChange(page + 1)}
-                disabled={page * limit >= totalRows}
-              >
-                Next
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+      {/* 🔥 Spreadsheet for Dataset Editing */}
+      {activeDataset && (
+        <SpreadsheetComponent 
+          data={spreadsheetData} 
+          onChange={handleSpreadsheetChange} 
+          datasetName={activeDataset}
+        />
+      )}
+
+      {/* 🔥 Transformation Panel */}
+      {activeDataset && (
+        <TransformationPanel 
+          datasetName={activeDataset} 
+          availableTransformations={availableTransformations}
+        />
+      )}
     </div>
   );
 };
