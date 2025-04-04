@@ -1,6 +1,9 @@
+# api/urls.py
+
 from django.urls import path
-from .views import DatasetExportView
+from api.export_app.views import FileExportView, AvailableExportToolsView
 
 urlpatterns = [
-    path("<str:dataset_name>/<str:file_type>/", DatasetExportView.as_view(), name="dataset-export"),
+    path("", FileExportView.as_view(), name="file_export"),
+    path("tools", AvailableExportToolsView.as_view(), name="available_export_tools"),
 ]

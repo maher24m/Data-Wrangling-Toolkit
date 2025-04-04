@@ -2,15 +2,18 @@ from django.views import View
 from django.http import JsonResponse
 from api.datasets.manager import DatasetManager
 from api.transformations.factory import TransformationProcessorFactory
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 import json
 
+@method_decorator(csrf_exempt, name="dispatch")
 class ApplyTransformationView(View):
     """Applies transformations to the active dataset"""
     
     def post(self, request):
         dataset_name = request.POST.get("dataset_name")
         transformations = request.POST.getlist("transformations")  # Expecting a JSON list
-
+ 
         if not dataset_name or not transformations:
             return JsonResponse({"error": "Missing required parameters"}, status=400)
 
@@ -40,3 +43,11 @@ class ApplyTransformationView(View):
 
         except Exception as e:
             return JsonResponse({"error": "Transformation failed", "details": str(e)}, status=500)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class AvailableTransformationToolsView(View):
+    """Returns a list of available transformations from the factory"""
+    def get(self, request):
+        return JsonResponse({
+            "transformation_tools": TransformationProcessorFactory.list_processors()  # 🔥 Uses lazy-loaded factory
+        })

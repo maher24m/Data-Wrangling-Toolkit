@@ -17,7 +17,7 @@ class FileUploadView(View):
         dataset_name = request.POST["dataset_name"]
         uploaded_file = request.FILES["file"]
         file_type = uploaded_file.content_type  # Detect file type
-
+        print(file_type)
         try:
             processor = FileProcessorFactory.get_processor(file_type)
             df = processor.process(uploaded_file)
@@ -33,8 +33,7 @@ class FileUploadView(View):
 @method_decorator(csrf_exempt, name="dispatch")
 class AvailableImportToolsView(View):
     """Returns a list of available file import processors from the factory"""
-
     def get(self, request):
         return JsonResponse({
-            "import_tools": list(FileProcessorFactory._processors.keys())
+            "import_tools": FileProcessorFactory.list_processors()
         })

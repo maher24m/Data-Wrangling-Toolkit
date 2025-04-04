@@ -1,22 +1,39 @@
-import pandas as pd
 import os
+import pandas as pd
 
-DATASET_STORAGE = {}  # Temporary in-memory storage, but should be DB-backed
+# 🔥 Define a directory for storing datasets
+DATASET_DIRECTORY = "stored_datasets"
+DATASET_STORAGE = {}  # 🔥 Dictionary to store dataset references
+
+# 🔥 Ensure the directory exists
+if not os.path.exists(DATASET_DIRECTORY):
+    os.makedirs(DATASET_DIRECTORY)
 
 def save_dataset(name, data):
     """Save dataset efficiently using Parquet (faster than CSV)."""
-    file_path = f"datasets/{name}.parquet"
+    file_path = os.path.join(DATASET_DIRECTORY, f"{name}.parquet")  # 🔥 Unique file for each dataset
     df = pd.DataFrame(data)
-    df.to_parquet(file_path, compression="snappy")
-    DATASET_STORAGE[name] = file_path  # Store reference to file
-    return file_path
 
-def get_dataset(name, chunk_size=None):
-    """Load dataset in chunks to reduce memory usage."""
-    file_path = DATASET_STORAGE.get(name)
-    if not file_path or not os.path.exists(file_path):
+    try:
+        df.to_parquet(file_path, compression="snappy")  # 🔥 Use Snappy compression for speed
+        DATASET_STORAGE[name] = file_path  # 🔥 Store reference to file
+        return file_path
+    except Exception as e:
+        print(f"Error saving dataset: {e}")
         return None
 
-    if chunk_size:
-        return pd.read_parquet(file_path, engine="pyarrow", chunksize=chunk_size)  # Load in chunks
-    return pd.read_parquet(file_path, engine="pyarrow")
+def get_dataset(name):
+    """Load a dataset from Parquet file."""
+    file_path = DATASET_STORAGE.get(name)
+    if not file_path or not os.path.exists(file_path):
+        return None  # 🔥 Dataset not found
+
+    try:
+        return pd.read_parquet(file_path, engine="pyarrow")
+    except Exception as e:
+        print(f"Error loading dataset: {e}")
+        return None
+
+def list_datasets():
+    """Return a list of available datasets"""
+    return list(DATASET_STORAGE.keys())  # 🔥 Return all dataset names

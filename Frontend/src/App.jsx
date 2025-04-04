@@ -2,77 +2,93 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Toolbar from "./components/Toolbar";
 import FileImport from "./components/FileImport";
-import TransformationPanel from "./components/TransformationPanel";
 import SpreadsheetComponent from "./components/SpreadsheetComponent";
+import TransformationPanel from "./components/TransformationPanel";
 import "./App.css";
 
 const App = () => {
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [datasets, setDatasets] = useState([]);
-  const [activeDataset, setActiveDataset] = useState(null);
-  const [spreadsheetData, setSpreadsheetData] = useState([]);
-  const [availableTransformations, setAvailableTransformations] = useState([]);
-  const [availableImportTools, setAvailableImportTools] = useState([]);
+  const [datasets, setDatasets] = useState([]); // List of datasets
+  const [activeDataset, setActiveDataset] = useState(null); // Currently selected dataset
+  const [spreadsheetData, setSpreadsheetData] = useState([]); // Data for spreadsheet
+  const [availableTransformations, setAvailableTransformations] = useState([]); // Backend transformations
+  const [isLoading, setIsLoading] = useState(true); // Loading state
 
-  /** 🔥 Fetch Available Datasets **/
+  /** 🔥 Fetch Datasets from Backend */
+  const fetchDatasets = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/datasets/");
+      const fetchedDatasets = response.data.datasets;
+
+      setDatasets(fetchedDatasets);
+
+      if (fetchedDatasets.length > 0) {
+        setActiveDataset(fetchedDatasets[0]); // ✅ Set first dataset as active
+      } else {
+        setActiveDataset(null); // ✅ No dataset available
+      }
+    } catch (error) {
+      console.error("Error fetching datasets:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /** 🔥 Fetch Dataset Data (Runs AFTER `activeDataset` updates) */
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/datasets/")
-      .then(response => {
-        setDatasets(response.data.datasets);
-        setActiveDataset(response.data.active_dataset);
-        if (response.data.active_dataset) {
-          fetchDatasetData(response.data.active_dataset);
-        }
-      })
-      .catch(error => console.error("Error fetching datasets:", error));
-  }, []);
+    if (activeDataset) {
+      console.log("🔥 Fetching data for dataset:", activeDataset);
+      fetchDatasetData(activeDataset);
+    } else {
+      setSpreadsheetData([]); // ✅ Reset spreadsheet if no dataset is active
+    }
+  }, [activeDataset]); // ✅ Runs only when `activeDataset` changes
 
-  /** 🔥 Fetch Available Import Tools **/
-  useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/import/tools/")
-      .then(response => setAvailableImportTools(response.data.available_import_tools))
-      .catch(error => console.error("Error fetching import tools:", error));
-  }, []);
-
-  /** 🔥 Fetch Available Transformations **/
-  useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/transformations/tools/")
-      .then(response => setAvailableTransformations(response.data.available_transformations))
-      .catch(error => console.error("Error fetching transformations:", error));
-  }, []);
-
-  /** 🔥 Fetch Dataset Data for Spreadsheet **/
-  const fetchDatasetData = (datasetName) => {
+  const fetchDatasetData = async (datasetName) => {
+    console.log("🔥 Fetching dataset data for:", datasetName);
+  
     axios.get(`http://127.0.0.1:8000/api/datasets/${datasetName}/`)
       .then(response => {
-        const formattedData = response.data.data.map(row =>
-          Object.values(row).map(value => ({ value }))
-        );
-        setSpreadsheetData(formattedData);
+        try {
+          console.log("✅ DEBUG: Raw API Response ->", response.data);
+  
+          if (!response.data || typeof response.data !== "object") {
+            console.log(typeof response.data);
+            throw new Error("Invalid JSON format received");
+          }
+  
+          if (Array.isArray(response.data.data)) {
+            const formattedData = response.data.data.map(row =>
+              Object.values(row).map(value => ({ value }))
+            );
+            console.log("✅ DEBUG: Formatted Data ->", formattedData);
+  
+            setSpreadsheetData([...formattedData]);  // ✅ Ensures re-render
+          } else {
+            console.error("❌ ERROR: Unexpected data format:", response.data);
+          }
+        } catch (jsonError) {
+          console.error("❌ ERROR: JSON Parsing Failed", jsonError);
+        }
       })
-      .catch(error => console.error("Error fetching dataset:", error));
+      .catch(error => {
+        console.error("❌ ERROR: Fetching dataset failed:", error);
+      });
   };
+  
 
-  /** 🔥 Handle File Upload **/
+  /** 🔥 Handle File Upload */
   const handleFileUpload = (datasetName) => {
-    setDatasets([...datasets, datasetName]);
-    setActiveDataset(datasetName);
-    fetchDatasetData(datasetName);
-    setShowImportModal(false);
+    setActiveDataset(datasetName); // ✅ Update active dataset
+    fetchDatasets(); // ✅ Refresh dataset list
   };
 
-  /** 🔥 Handle Dataset Selection **/
-  const handleDatasetSelection = (datasetName) => {
-    setActiveDataset(datasetName);
-    fetchDatasetData(datasetName);
-  };
-
-  /** 🔥 Handle Spreadsheet Data Change **/
+  /** 🔥 Handle Spreadsheet Changes */
   const handleSpreadsheetChange = (newData) => {
     setSpreadsheetData(newData);
   };
 
-  /** 🔥 Save Dataset to Backend **/
+  /** 🔥 Save Dataset to Backend */
   const saveDataset = () => {
     if (!activeDataset) return;
 
@@ -89,41 +105,51 @@ const App = () => {
       alert("Dataset saved successfully!");
     }).catch(error => {
       console.error("Error saving dataset:", error);
+      alert("Failed to save dataset.");
     });
   };
 
+  /** 🔥 Fetch Available Transformations */
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/api/transformations/tools/")
+      .then(response => setAvailableTransformations(response.data.transformation_tools))
+      .catch(error => console.error("Error fetching transformations:", error));
+  }, []);
+
+  /** 🔥 Load Datasets on Mount */
+  useEffect(() => {
+    fetchDatasets();
+  }, []);
+
+  console.log("Datasets:", datasets);
+  console.log("Active dataset:", activeDataset);
+  console.log("Spreadsheet data:", spreadsheetData);
+
   return (
     <div className="app-container">
-      {/* 🔥 Top Toolbar for Navigation */}
       <Toolbar 
         tools={["Analyze", "Visualize", "Transform", "Export"]}
-        onOpenImport={() => setShowImportModal(true)}
         onSave={saveDataset}
       />
 
-      {/* 🔥 Dataset Import Modal */}
-      {showImportModal && (
-        <FileImport 
-          onFileUpload={handleFileUpload} 
-          availableImportTools={availableImportTools}
-        />
-      )}
+      {/* 🔥 Show Loader While Fetching Data */}
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : datasets.length === 0 ? (
+        <FileImport onFileUpload={handleFileUpload} />
+      ) : (
+        <>
+          {/* 🔥 Dataset Spreadsheet */}
+          {activeDataset && spreadsheetData.length > 0 && (
+            <SpreadsheetComponent 
+              data={spreadsheetData} 
+              onChange={handleSpreadsheetChange} 
+              datasetName={activeDataset}
+            />
+          )}
 
-      {/* 🔥 Spreadsheet for Dataset Editing */}
-      {activeDataset && (
-        <SpreadsheetComponent 
-          data={spreadsheetData} 
-          onChange={handleSpreadsheetChange} 
-          datasetName={activeDataset}
-        />
-      )}
 
-      {/* 🔥 Transformation Panel */}
-      {activeDataset && (
-        <TransformationPanel 
-          datasetName={activeDataset} 
-          availableTransformations={availableTransformations}
-        />
+        </>
       )}
     </div>
   );

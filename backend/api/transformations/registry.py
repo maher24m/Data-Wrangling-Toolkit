@@ -1,7 +1,16 @@
-from transformations.processor import NormalizeProcessor, LogProcessor, SquareRootProcessor
-from transformations.factory import TransformationProcessorFactory
+from api.transformations.processor import NormalizeProcessor, LogProcessor, SquareRootProcessor
+from backend.plugins.base import load_plugins  # 🔥 Load transformation plugins dynamically
 
+def load_processors():
+    """Loads and returns available transformation processors in a dictionary (Lazy Initialization)"""
+    processors = {}
 
-TransformationProcessorFactory.register_processor("normalize", NormalizeProcessor)
-TransformationProcessorFactory.register_processor("log", LogProcessor)
-TransformationProcessorFactory.register_processor("square_root", SquareRootProcessor)
+    # 🔥 Register default transformation processors
+    processors["normalize"] = NormalizeProcessor
+    processors["log"] = LogProcessor
+    processors["square_root"] = SquareRootProcessor
+
+    # 🔥 Load user-defined transformation plugins from `plugins/transformations/`
+    load_plugins("transformations", processors)
+
+    return processors

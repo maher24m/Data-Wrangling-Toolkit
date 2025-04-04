@@ -109,6 +109,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Allow React (Frontend) to access the backend
+# 🔥 Allow requests from your React frontend
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React server
+    "http://localhost:3000",  # React Development Server
+    "http://127.0.0.1:3000",  # Alternative localhost
 ]
+
+# 🔥 If you want to allow all origins (for testing), use this:
+CORS_ALLOW_ALL_ORIGINS = True  # ❗ WARNING: Don't use this in production!
