@@ -15,7 +15,12 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',          # ← specify the backend
+        'NAME': BASE_DIR / 'db.sqlite3',                  # ← path to the sqlite file
+    }
+}
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -40,7 +45,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
 
-    # 🔥 Modular apps
+    # Modular apps
     "api.datasets",
     "api.import_app",  # Renamed to avoid conflict with Python’s "import"
     "api.export_app",

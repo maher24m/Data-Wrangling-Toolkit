@@ -2,12 +2,30 @@
 
 import pandas as pd
 import xml.etree.ElementTree as ET
-import json
+from pathlib import Path
+
 
 class Exporter:
-    """Base class for all data exporters"""
+    """
+    Facade: picks the right concrete exporter via the factory
+    and delegates the export call.
+    """
+    
     def export(self, data, file_path):
-        raise NotImplementedError("Subclasses must implement this method")
+        # Normalize data into a DataFrame
+        df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
+        from .factory import FileExporterFactory
+        # Determine format key from file extension (e.g. 'csv', 'json', etc.)
+        fmt = Path(file_path).suffix.lstrip('.').lower()
+        if not fmt:
+            raise ValueError(f"Cannot infer format from path: {file_path}")
+
+        # Get the concrete exporter from the factory
+        exporter = FileExporterFactory.get_exporter(fmt)
+
+        # Delegate
+        return exporter.export(df, file_path)
+
 
 class CSVExporter(Exporter):
     def export(self, data, file_path):

@@ -16,8 +16,8 @@ class DatasetDetailView(View):
             return JsonResponse({"error": "Dataset not found"}, status=404)
 
         try:
-            dataset_json = dataset.to_dict(orient="records")  # ✅ Ensures correct JSON format
+            dataset_json = dataset.to_dict(orient="records")  # Ensures correct JSON format
             print(type(dataset_json))
-            return JsonResponse({"data": dataset_json}, safe=False)  # ✅ Prevents Django from converting it into a string
+            return JsonResponse({"data": dataset_json}, safe=False)  #  Prevents Django from converting it into a string
         except Exception as e:
             return JsonResponse({"error": "JSON serialization failed", "details": str(e)}, status=500)

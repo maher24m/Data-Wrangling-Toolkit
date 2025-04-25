@@ -1,38 +1,39 @@
 import pandas as pd
 import os
+from api.storage import get_dataset, save_dataset, list_datasets
 
-DATASET_STORAGE = {}
-DATASET_PATH = "datasets/"
 ACTIVE_DATASET = None  # Stores active dataset name
 
 class DatasetManager:
-    """Handles dataset storage and retrieval"""
+    """Handles dataset-specific operations and active dataset management"""
 
     @staticmethod
     def save_dataset(name, data):
-        """Save dataset as a Parquet file."""
-        if not os.path.exists(DATASET_PATH):
-            os.makedirs(DATASET_PATH)
-        file_path = f"{DATASET_PATH}{name}.parquet"
-        pd.DataFrame(data).to_parquet(file_path, compression="snappy")
-        DATASET_STORAGE[name] = file_path
-        return file_path
+        """Save dataset using the storage system."""
+        if isinstance(data, pd.DataFrame):
+            data = data.to_dict(orient="records")
+        return save_dataset(name, data)
 
     @staticmethod
     def get_dataset(name, chunk_size=None):
-        """Load dataset from Parquet file."""
-        file_path = DATASET_STORAGE.get(name)
-        if not file_path or not os.path.exists(file_path):
-            return None
+        """Load dataset with optional chunking support."""
         if chunk_size:
+            file_path = list_datasets().get(name)
+            if not file_path or not os.path.exists(file_path):
+                return None
             return pd.read_parquet(file_path, engine="pyarrow", chunksize=chunk_size)
-        return pd.read_parquet(file_path, engine="pyarrow")
+        return get_dataset(name)
+
+    @staticmethod
+    def list_datasets():
+        """Return a list of available datasets using the storage module."""
+        return list_datasets()
 
     @staticmethod
     def set_active_dataset(name):
         """Set the active dataset for transformations & processing."""
         global ACTIVE_DATASET
-        if name in DATASET_STORAGE:
+        if name in list_datasets():
             ACTIVE_DATASET = name
 
     @staticmethod

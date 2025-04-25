@@ -45,8 +45,9 @@ class FileExporterFactory:
     @classmethod
     def _load_plugins(cls, plugin_dir):
         """Dynamically load plugins from a directory."""
+        from api.export_app.exporters import Exporter  # Import the base class
         try:
-            from api.export_app.exporters import Exporter  # Import the base class
+            
             
             plugin_path = Path(plugin_dir)
             for module_file in plugin_path.glob("*.py"):

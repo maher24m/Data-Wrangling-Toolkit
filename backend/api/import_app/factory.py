@@ -3,6 +3,7 @@
 import importlib
 from pathlib import Path
 
+
 class FileProcessorFactory:
     """Factory for creating file processors dynamically."""
     _processors = None
@@ -41,7 +42,7 @@ class FileProcessorFactory:
                 
                 # Register the processor
                 cls._processors[file_type] = processor_class
-                cls._mime_mapping[file_type] = class_name.replace("Processor", "")
+                # cls._mime_mapping[file_type] = class_name.replace("Processor", "")
                 
                 print(f"Successfully registered: {file_type} -> {processor_class.__name__}")  # Debug output
             except ModuleNotFoundError as e:
@@ -54,6 +55,7 @@ class FileProcessorFactory:
     @classmethod
     def _load_plugins(cls, plugin_dir):
         """Dynamically load plugins from a directory."""
+        from api.import_app.processors import FileProcessor  # Import the base class
         plugin_path = Path(plugin_dir)
         for module_file in plugin_path.glob("*.py"):
             if module_file.name != "__init__.py":
@@ -85,4 +87,5 @@ class FileProcessorFactory:
     def list_processors(cls):
         """Returns a list of available file types in human-readable format."""
         cls._initialize_processors()
-        return list(cls._mime_mapping.values())
+        print("Available processors:", cls._processors)
+        return list(cls._processors.values())

@@ -32,9 +32,11 @@ class FileExportView(View):
         except Exception as e:
             return JsonResponse({"error": "Failed to load dataset", "details": str(e)}, status=500)
 
+        if data is None:
+            return JsonResponse({"error": f"Dataset '{dataset_name}' not found."}, status=404)
+
         try:
             exporter = FileExporterFactory.get_exporter(file_type)
-            print(exporter)
             exporter.export(data, file_path)
         except ValueError as e:
             return JsonResponse({"error": str(e)}, status=400)
@@ -46,12 +48,10 @@ class FileExportView(View):
             response["Content-Disposition"] = f"attachment; filename={os.path.basename(file_path)}"
             return response
         
-        # api/export_app/views.py
 
 @method_decorator(csrf_exempt, name="dispatch")
 class AvailableExportToolsView(View):
     """Returns a list of available file export tools from the factory."""
-
     def get(self, request):
         return JsonResponse({
             "export_tools": FileExporterFactory.list_exporters()
