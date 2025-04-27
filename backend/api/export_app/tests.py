@@ -26,7 +26,7 @@ class ExportAppTests(TestCase):
         if os.path.exists('exports/test_export.xml'):
             os.remove('exports/test_export.xml')
 
-    def test_export_csv(self): # failure
+    def test_export_csv(self):
         """Test exporting to CSV format"""
         response = self.client.post(
             reverse('export_app:file_export'),

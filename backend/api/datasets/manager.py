@@ -1,44 +1,37 @@
+# api/datasets/manager.py
+
 import pandas as pd
 import os
-from api.storage import get_dataset, save_dataset, list_datasets
+from api.storage import get_dataset as _load, save_dataset as _save, list_datasets as _list
 
-ACTIVE_DATASET = None  # Stores active dataset name
+_active_dataset = None
 
-class DatasetManager:
-    """Handles dataset-specific operations and active dataset management"""
+def save_dataset(name, data):
+    if isinstance(data, pd.DataFrame):
+        data = data.to_dict(orient="records")
+    return _save(name, data)
 
-    @staticmethod
-    def save_dataset(name, data):
-        """Save dataset using the storage system."""
-        if isinstance(data, pd.DataFrame):
-            data = data.to_dict(orient="records")
-        return save_dataset(name, data)
+def get_dataset(name, chunk_size=None):
+    if chunk_size:
+        paths = _list()
+        file_path = paths.get(name)
+        if not file_path or not os.path.exists(file_path):
+            return None
+        return pd.read_parquet(file_path, engine="pyarrow", chunksize=chunk_size)
+    return _load(name)
 
-    @staticmethod
-    def get_dataset(name, chunk_size=None):
-        """Load dataset with optional chunking support."""
-        if chunk_size:
-            file_path = list_datasets().get(name)
-            if not file_path or not os.path.exists(file_path):
-                return None
-            return pd.read_parquet(file_path, engine="pyarrow", chunksize=chunk_size)
-        return get_dataset(name)
+def list_datasets():
+    return _list()
 
-    @staticmethod
-    def list_datasets():
-        """Return a list of available datasets using the storage module."""
-        return list_datasets()
+def set_active_dataset(name):
+    global _active_dataset
+    if name in _list():
+        _active_dataset = name
 
-    @staticmethod
-    def set_active_dataset(name):
-        """Set the active dataset for transformations & processing."""
-        global ACTIVE_DATASET
-        if name in list_datasets():
-            ACTIVE_DATASET = name
+def get_active_dataset():
+    if _active_dataset:
+        return get_dataset(_active_dataset)
+    return None
 
-    @staticmethod
-    def get_active_dataset():
-        """Retrieve the currently active dataset."""
-        if ACTIVE_DATASET:
-            return DatasetManager.get_dataset(ACTIVE_DATASET)
-        return None
+def get_active_dataset_name():
+    return _active_dataset if _active_dataset else None

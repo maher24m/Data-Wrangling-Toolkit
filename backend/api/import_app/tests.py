@@ -68,7 +68,7 @@ class ImportAppTests(TestCase):
         data = json.loads(response.content)
         self.assertIn('error', data)
 
-    def test_available_import_tools(self): # Object of type type is not JSON serializable
+    def test_available_import_tools(self):
         """Test getting available import tools"""
         response = self.client.get(reverse('import_app:available-import-tools')) 
         self.assertEqual(response.status_code, 200)
@@ -78,7 +78,7 @@ class ImportAppTests(TestCase):
         self.assertIn('csv', data['import_tools'])
         self.assertIn('json', data['import_tools'])
 
-    def test_file_processor_csv(self): #NotImplementedError('Subclasses should implement this!'
+    def test_file_processor_csv(self): 
         """Test CSV file processor"""
         from api.import_app.processors import FileProcessor
         processor = FileProcessor()
@@ -87,7 +87,7 @@ class ImportAppTests(TestCase):
         self.assertEqual(len(df), 3)
         self.assertEqual(list(df.columns), ['col1', 'col2'])
 
-    def test_file_processor_json(self): #NotImplementedError('Subclasses should implement this!'
+    def test_file_processor_json(self): 
         """Test JSON file processor"""
         from api.import_app.processors import FileProcessor
         processor = FileProcessor()

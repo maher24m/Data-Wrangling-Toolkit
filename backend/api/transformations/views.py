@@ -1,6 +1,6 @@
 from django.views import View
 from django.http import JsonResponse
-from api.datasets.manager import DatasetManager
+from api.datasets.manager import get_dataset, save_dataset
 from api.transformations.factory import TransformationProcessorFactory
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -22,7 +22,7 @@ class ApplyTransformationView(View):
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON format for transformations"}, status=400)
 
-        df = DatasetManager.get_dataset(dataset_name)
+        df = get_dataset(dataset_name)
         if df is None:
             return JsonResponse({"error": "Dataset not found"}, status=404)
 
@@ -38,7 +38,7 @@ class ApplyTransformationView(View):
                 df = processor.apply(df, column_name)
 
             transformed_name = f"{dataset_name}_transformed"
-            DatasetManager.save_dataset(transformed_name, df.to_dict(orient="records"))
+            save_dataset(transformed_name, df.to_dict(orient="records"))
             return JsonResponse({"success": True, "dataset": transformed_name})
 
         except Exception as e:
