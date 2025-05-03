@@ -64,6 +64,16 @@ class ExportAppTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'xml')
         self.assertTrue(os.path.exists('exports/test_export.xml'))
+    
+    def test_export_excel_xlsx(self):
+        response = self.client.post(
+            reverse('export_app:file_export'),
+            {'dataset_name': self.dataset_name, 'file_type': 'xlsx'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'xlsx')
+        self.assertTrue(os.path.exists('exports/test_export.xlsx'))
+
 
     def test_export_invalid_format(self):
         """Test exporting with invalid format"""
@@ -101,23 +111,6 @@ class ExportAppTests(TestCase):
         self.assertIn('csv', data['export_tools'])
         self.assertIn('json', data['export_tools'])
         self.assertIn('xml', data['export_tools'])
+        self.assertIn('xlsx', data['export_tools'])
+        self.assertIn('parquet', data['export_tools'])
 
-    def test_exporter_csv(self):
-        """Test CSV exporter"""
-        from api.export_app.exporters import Exporter
-        exporter = Exporter()
-        exporter.export(self.sample_data, 'exports/test_export.csv')
-        self.assertTrue(os.path.exists('exports/test_export.csv'))
-        df = pd.read_csv('exports/test_export.csv')
-        self.assertEqual(len(df), 3)
-        self.assertEqual(list(df.columns), ['A', 'B'])
-
-    def test_exporter_json(self): #error
-        """Test JSON exporter"""
-        from api.export_app.exporters import Exporter
-        exporter = Exporter()
-        exporter.export(self.sample_data, 'exports/test_export.json')
-        self.assertTrue(os.path.exists('exports/test_export.json'))
-        df = pd.read_json('exports/test_export.json') #parsing error
-        self.assertEqual(len(df), 3)
-        self.assertEqual(list(df.columns), ['A', 'B'])

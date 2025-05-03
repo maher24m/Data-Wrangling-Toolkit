@@ -26,7 +26,7 @@ class FileProcessorFactory:
             "application/vnd.ms-excel": "api.import_app.processors.ExcelProcessor",
             "application/json": "api.import_app.processors.JSONProcessor",
             "application/xml": "api.import_app.processors.XMLProcessor",
-            "application/parquet": "api.import_app.processors.ParquetProcessor",
+            "application/octet-stream": "api.import_app.processors.ParquetProcessor",
         }
 
         for file_type, processor_class_path in default_processors.items():
@@ -87,5 +87,4 @@ class FileProcessorFactory:
     def list_processors(cls):
         """Returns a list of available file types in human-readable format."""
         cls._initialize_processors()
-        print("Available processors:", cls._processors)
-        return list(cls._processors.values())
+        return list(cls._processors.keys())

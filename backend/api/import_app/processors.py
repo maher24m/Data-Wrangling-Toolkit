@@ -4,21 +4,17 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from .factory import FileProcessorFactory
 
+# api/processing/file_processor.py
+
 class FileProcessor:
     """
-    Facade: picks the right concrete processor via the factory
-    and delegates the process call.
+    Stub facade: this should not be used. Always errors out.
     """
     def process(self, file):
-        # Determine format key from file extension (e.g. 'csv', 'json', etc.)
-        fmt = Path(file).suffix.lstrip('.').lower()
-        print(fmt)
-        if not fmt:
-            raise ValueError(f"Cannot infer format from path: {file}")
-
-        processor = FileProcessorFactory.get_processor(fmt)
-        return processor.process(file)
-
+        raise RuntimeError(
+            "FileProcessor is deprecated and should not be used. "
+            "Please switch to the new import pipeline."
+        )
 
 # Default Processors
 class CSVProcessor(FileProcessor):

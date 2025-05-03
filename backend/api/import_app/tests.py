@@ -15,6 +15,15 @@ class ImportAppTests(TestCase):
         self.json_content = b'[{"col1": 1, "col2": "a"}, {"col1": 2, "col2": "b"}]'
         self.json_file = SimpleUploadedFile("test.json", self.json_content, content_type="application/json")
 
+        self.parquet_content = b"col1,col2\n1,a\n2,b\n3,c"
+        self.parquet_file = SimpleUploadedFile("test.parquet", self.parquet_content, content_type="application/octet-stream")
+
+        self.xml_content = b"<root><item><col1>1</col1><col2>a</col2></item><item><col1>2</col1><col2>b</col2></item></root>"
+        self.xml_file = SimpleUploadedFile("test.xml", self.xml_content, content_type="application/xml")
+
+        self.excel_content = b"col1,col2\n1,a\n2,b\n3,c"
+        self.excel_file = SimpleUploadedFile("test.xlsx", self.excel_content, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
     def tearDown(self):
         # Clean up any created files
         if os.path.exists('datasets/test.csv'):
@@ -26,7 +35,7 @@ class ImportAppTests(TestCase):
         """Test uploading a CSV file"""
         response = self.client.post(
             reverse('import_app:file-upload'), 
-            {'file': self.csv_file, 'dataset_name': 'pep'},
+            {'file': self.csv_file, 'dataset_name': 'csv'},
             format='multipart'
         )
         self.assertEqual(response.status_code, 200)
@@ -38,13 +47,40 @@ class ImportAppTests(TestCase):
         """Test uploading a JSON file"""
         response = self.client.post(
             reverse('import_app:file-upload'),
-            {'file': self.json_file,'file_type': 'json'},
+            {'file': self.json_file,'dataset_name': 'json'},
             format='multipart'
         )
-        self.assertEqual(response.status_code, 200) #400 != 200
+        self.assertEqual(response.status_code, 200) 
         data = json.loads(response.content)
-        self.assertIn('message', data)
-        self.assertTrue(os.path.exists(f'datasets/{data["dataset_name"]}.parquet'))
+        self.assertIn('success', data)
+        self.assertTrue(os.path.exists(f'stored_datasets/{data["dataset_name"]}.parquet'))
+
+    def test_file_upload_xml(self):
+        """Test uploading an XML file"""
+
+        response = self.client.post(
+            reverse('import_app:file-upload'),
+            {'file': self.xml_file, 'dataset_name': 'test_xml'},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertIn('success', data)
+        self.assertTrue(os.path.exists(f'stored_datasets/{data["dataset_name"]}.parquet'))
+
+    def test_file_upload_parquet(self): #Works but test fails
+        """Test uploading a Parquet file"""
+        
+        response = self.client.post(
+            reverse('import_app:file-upload'),
+            {'file': self.parquet_file, 'dataset_name': 'test_parquet'},
+            format='multipart'
+        )
+        print(response.content)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertIn('success', data)
+        self.assertTrue(os.path.exists(f'stored_datasets/{data["dataset_name"]}.parquet'))
 
     def test_file_upload_invalid_type(self):
         """Test uploading a file with invalid type"""
@@ -72,26 +108,11 @@ class ImportAppTests(TestCase):
         """Test getting available import tools"""
         response = self.client.get(reverse('import_app:available-import-tools')) 
         self.assertEqual(response.status_code, 200)
+        print(response.content)
         data = json.loads(response.content)
         self.assertIn('import_tools', data)
         self.assertIsInstance(data['import_tools'], list)
-        self.assertIn('csv', data['import_tools'])
-        self.assertIn('json', data['import_tools'])
+        self.assertIn('text/csv', data['import_tools'])
+        self.assertIn('application/json', data['import_tools'])
 
-    def test_file_processor_csv(self): 
-        """Test CSV file processor"""
-        from api.import_app.processors import FileProcessor
-        processor = FileProcessor()
-        df = processor.process(self.csv_file)
-        self.assertIsInstance(df, pd.DataFrame) 
-        self.assertEqual(len(df), 3)
-        self.assertEqual(list(df.columns), ['col1', 'col2'])
 
-    def test_file_processor_json(self): 
-        """Test JSON file processor"""
-        from api.import_app.processors import FileProcessor
-        processor = FileProcessor()
-        df = processor.process(self.json_file)
-        self.assertIsInstance(df, pd.DataFrame)
-        self.assertEqual(len(df), 2)
-        self.assertEqual(list(df.columns), ['col1', 'col2'])

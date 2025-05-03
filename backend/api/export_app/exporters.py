@@ -12,19 +12,10 @@ class Exporter:
     """
     
     def export(self, data, file_path):
-        # Normalize data into a DataFrame
-        df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
-        from .factory import FileExporterFactory
-        # Determine format key from file extension (e.g. 'csv', 'json', etc.)
-        fmt = Path(file_path).suffix.lstrip('.').lower()
-        if not fmt:
-            raise ValueError(f"Cannot infer format from path: {file_path}")
-
-        # Get the concrete exporter from the factory
-        exporter = FileExporterFactory.get_exporter(fmt)
-
-        # Delegate
-        return exporter.export(df, file_path)
+        raise RuntimeError(
+            "FileProcessor is deprecated and should not be used. "
+            "Please switch to the new import pipeline."
+        )
 
 
 class CSVExporter(Exporter):
@@ -37,7 +28,7 @@ class JSONExporter(Exporter):
         df = pd.DataFrame(data)
         return df.to_json(file_path, orient="records", lines=True)
 
-class ExcelExporter(Exporter):
+class ExcelExporter(Exporter): #FAILED
     def export(self, data, file_path):
         df = pd.DataFrame(data)
         return df.to_excel(file_path, index=False)

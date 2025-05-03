@@ -19,7 +19,7 @@ class FileExporterFactory:
         default_exporters = {
             "csv": "api.export_app.exporters.CSVExporter",
             "json": "api.export_app.exporters.JSONExporter",
-            "excel": "api.export_app.exporters.ExcelExporter",
+            "xlsx": "api.export_app.exporters.ExcelExporter",
             "xml": "api.export_app.exporters.XMLExporter",
             "parquet": "api.export_app.exporters.ParquetExporter",
         }

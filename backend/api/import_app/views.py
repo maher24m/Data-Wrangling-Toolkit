@@ -2,7 +2,7 @@ from django.views import View
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from api.datasets.manager import save_dataset, set_active_dataset
+from api.datasets.manager import save_dataset, set_active_dataset_from_stored
 from api.import_app.factory import FileProcessorFactory
 
 
@@ -27,7 +27,7 @@ class FileUploadView(View):
 
         # Store dataset
         save_dataset(dataset_name, df.to_dict(orient="records"))
-        set_active_dataset(dataset_name)
+        set_active_dataset_from_stored(dataset_name)
         return JsonResponse({"success": True, "dataset_name": dataset_name, "columns": df.columns.tolist()})
 
 @method_decorator(csrf_exempt, name="dispatch")
