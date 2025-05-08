@@ -1,19 +1,13 @@
-import React, { useEffect } from "react";
-import Spreadsheet from "react-spreadsheet";
+import React from "react";
+import { Spreadsheet } from "react-spreadsheet";
+import "./SpreadsheetComponent.css";
 
-const SpreadsheetComponent = ({ data, onChange, datasetName }) => {
-  useEffect(() => {
-    console.log("🔥 SpreadsheetComponent Updated:", data);
-  }, [data]);
-
+const SpreadsheetComponent = ({ data, columnLabels, onChange }) => {
   return (
     <div className="spreadsheet-container">
-      <h3>Dataset: {datasetName}</h3>
-      {data.length > 0 ? (
+      <div className="spreadsheet-wrapper">
         <Spreadsheet data={data} onChange={onChange} />
-      ) : (
-        <p>No data available</p>
-      )}
+      </div>
     </div>
   );
 };

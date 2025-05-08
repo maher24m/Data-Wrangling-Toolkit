@@ -1,32 +1,94 @@
-/* Toolbar should remain fixed */
 .toolbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: #1e293b;
-    padding: 10px 20px;
     display: flex;
-    gap: 10px;
+    justify-content: space-between;
     align-items: center;
-    justify-content: flex-start;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+    height: 60px;
+    background-color: #24292e;
+    color: #fff;
+    padding: 0 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
-
-/* Toolbar Buttons */
-.toolbar-button {
-    background-color: #3b475c;
-    color: white;
+  
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .app-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-right: 24px;
+  }
+  
+  .toolbar-center {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .toolbar-button {
+    background-color: #2d333b;
+    color: #fff;
     border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
+    border-radius: 4px;
+    padding: 8px 16px;
     font-size: 14px;
-    transition: background 0.2s ease-in-out;
-}
-
-/* Button Hover Effect */
-.toolbar-button:hover {
-    background-color: #4c5a73;
-}
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .toolbar-button:hover {
+    background-color: #444c56;
+  }
+  
+  .toolbar-button.active {
+    background-color: #388bfd;
+  }
+  
+  .toolbar-button:disabled {
+    background-color: #444c56;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .toolbar-back-button {
+    background-color: transparent;
+    color: #b1bac4;
+    border: none;
+    padding: 8px 12px;
+    margin-right: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+  }
+  
+  .toolbar-back-button:hover {
+    background-color: #2d333b;
+    color: #fff;
+  }
+  
+  .active-dataset-indicator {
+    font-size: 14px;
+    color: #b1bac4;
+  }
+  
+  .dataset-name {
+    font-weight: 600;
+    color: #fff;
+  }
+  
+  .loading-text {
+    font-size: 14px;
+    color: #f0b880;
+  }
+  
+  .error-text {
+    font-size: 14px;
+  }

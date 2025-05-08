@@ -1,105 +1,325 @@
-/* File Import Container */
 .file-import-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.file-import-container h2 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.subtitle {
+  color: #718096;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Supported File Types */
+.supported-types {
+  margin-bottom: 2rem;
+}
+
+.file-type-badges {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   justify-content: center;
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  width: 50%;
-  max-width: 600px;
-  text-align: center;
-  margin: 0 auto;
 }
 
-/* Drag & Drop Area */
-.drop-zone {
-  border: 2px dashed #007bff;
-  padding: 20px;
-  width: 100%;
+.file-type-badge {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* File Input */
+.custom-file-input-container {
+  margin-bottom: 2rem;
+}
+
+.custom-file-input-label {
+  display: block;
   cursor: pointer;
-  margin-bottom: 15px;
-  transition: background 0.3s;
 }
 
-.drop-zone:hover {
-  background: rgba(0, 123, 255, 0.1);
-}
-
-.drop-zone p {
-  color: #333;
-  margin-bottom: 10px;
-}
-
-/* Hide default file input */
-.file-input {
+.hidden-file-input {
   display: none;
 }
 
-/* Upload Button */
-.upload-btn {
-  background: #007bff;
+.drop-zone {
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.drop-zone:hover {
+  border-color: #4299e1;
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.upload-icon {
+  color: #4299e1;
+}
+
+.drop-text {
+  font-size: 1.125rem;
+  color: #4a5568;
+  margin: 0;
+}
+
+.or-text {
+  color: #718096;
+  margin: 0;
+}
+
+.browse-button {
+  background-color: #4299e1;
   color: white;
-  padding: 10px 15px;
-  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: none;
   cursor: pointer;
-  transition: background 0.3s;
-  display: inline-block;
+  font-weight: 500;
+  transition: background-color 0.2s;
 }
 
-.upload-btn:hover {
-  background: #0056b3;
+.browse-button:hover {
+  background-color: #3182ce;
 }
 
-/* File Name Display */
+/* File Info */
+.file-info {
+  background-color: #f7fafc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.file-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.file-icon {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.file-details {
+  flex: 1;
+}
+
 .file-name {
-  margin-top: 10px;
-  color: #333;
+  margin: 0;
+  color: #2d3748;
+}
+
+.file-size {
+  margin: 0.25rem 0 0;
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+/* Dataset Name Input */
+.dataset-name-input {
+  margin-top: 1.5rem;
+}
+
+.dataset-name-input label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.dataset-name-input input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.input-help {
+  margin: 0.5rem 0 0;
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+/* Error Message */
+.error-message {
+  background-color: #fff5f5;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #c53030;
+}
+
+/* Success Message */
+.success-message {
+  background-color: #f0fff4;
+  color: #2f855a;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 4px solid #48bb78;
+}
+
+.success-icon {
+  font-size: 1.5rem;
   font-weight: bold;
 }
 
-/* Number of Rows Input */
-.num-rows-input {
-  margin: 10px;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  width: 80px;
+.success-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Upload Progress */
+.upload-progress {
+  margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+  background-color: #edf2f7;
+  border-radius: 9999px;
+  height: 0.5rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background-color: #4299e1;
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  margin: 0.5rem 0 0;
   text-align: center;
-}
-
-/* Preview Table */
-.preview-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.preview-table th,
-.preview-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-.preview-table th {
-  background-color: #f4f4f4;
+  color: #4a5568;
+  font-size: 0.875rem;
 }
 
 /* Import Button */
 .import-btn {
-  margin-top: 15px;
-  background: #28a745;
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #4299e1;
   color: white;
-  padding: 10px 15px;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background-color 0.2s;
 }
 
-.import-btn:hover {
-  background: #218838;
+.import-btn:hover:not(:disabled) {
+  background-color: #3182ce;
+}
+
+.import-btn:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.import-btn.uploading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Info Text */
+.import-info {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.import-info h3 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.import-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.import-steps li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.step-number {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.step-text {
+  color: #4a5568;
 }

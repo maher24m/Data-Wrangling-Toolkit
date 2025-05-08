@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
 # --- FIX: Use functions consistent with tests/assumptions ---
-from api.datasets.manager import save_dataset, get_active_dataset, get_active_dataset_name # Assuming these exist and work as expected
+from api.datasets.manager import save_dataset # Assuming these exist and work as expected
 from api.datacleaning.factory import DataCleaningFactory
 import traceback # For more detailed error logging
 
@@ -36,7 +36,7 @@ class DataCleaningView(View):
         # 2) Load the active dataset
         try:
             # --- FIX: Use get_active_dataset ---
-            df = get_active_dataset()
+            df = get_dataset("active_dataset") # Assuming this function exists and works as expected
             if df is None:
                 # --- FIX: Return 404 if no active dataset ---
                 return JsonResponse({"error": "Active dataset not found or is empty."}, status=404)
@@ -98,7 +98,7 @@ class DataCleaningView(View):
         # 4) Save back the modified dataset
         try:
             # --- FIX: Use get_active_dataset_name ---
-            active_dataset_name = get_active_dataset_name()
+            active_dataset_name = getdataset_name()
             if not active_dataset_name:
                  # This case might indicate an issue with the manager setup
                  print("Error: Could not determine active dataset name for saving.")
