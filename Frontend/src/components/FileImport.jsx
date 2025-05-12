@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { uploadDataset, fetchAllowedFileTypes } from "../services/api";
 import "./FileImport.css";
 
@@ -16,8 +16,16 @@ const FileImport = ({
   formatFileSize,
   getDisplayName,
 }) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+
   // Handle file upload using our API service
   const handleUpload = async () => {
+    if (!file || !datasetName.trim()) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+
     try {
       await uploadDataset(file, datasetName, (progress) => {
         // Update progress through the parent component
@@ -26,8 +34,10 @@ const FileImport = ({
       // Handle success
       onUpload(100); // Set to 100% when complete
     } catch (error) {
-      // Error is already handled by our API service
+      setUploadError(error.message);
       console.error("Upload failed:", error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -145,7 +155,9 @@ const FileImport = ({
       )}
 
       {/* Error Message */}
-      {error && <div className="error-message">{error}</div>}
+      {(error || uploadError) && (
+        <div className="error-message">{error || uploadError}</div>
+      )}
 
       {/* Success Message */}
       {importSuccess && (
@@ -159,7 +171,7 @@ const FileImport = ({
       )}
 
       {/* Upload Progress */}
-      {uploading && (
+      {isUploading && (
         <div className="upload-progress">
           <div className="progress-bar">
             <div
@@ -174,11 +186,11 @@ const FileImport = ({
       {/* Import Button */}
       {file && (
         <button
-          className={`import-btn ${uploading ? "uploading" : ""}`}
+          className={`import-btn ${isUploading ? "uploading" : ""}`}
           onClick={handleUpload}
-          disabled={uploading || !datasetName.trim()}
+          disabled={isUploading || !datasetName.trim()}
         >
-          {uploading ? (
+          {isUploading ? (
             <>
               <span className="spinner"></span>
               Uploading...

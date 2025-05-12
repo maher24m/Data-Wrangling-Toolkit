@@ -13,15 +13,22 @@ class DatasetListView(View):
 @method_decorator(csrf_exempt, name="dispatch")
 class DatasetDetailView(View):
     """Fetches a dataset by name and ensures response is proper JSON"""
-    def get(self, request, dataset_name):
-        dataset = get_dataset(dataset_name)
+    def get(self, request, dataset_name, chunk_size=None):
+        dataset = get_dataset(dataset_name, chunk_size)
         if dataset is None:
             return JsonResponse({"error": "Dataset not found"}, status=404)
 
         try:
-            dataset_json = dataset.to_dict(orient="records")  # Ensures correct JSON format
-            print(type(dataset_json))
-            return JsonResponse({"data": dataset_json}, safe=False)  #  Prevents Django from converting it into a string
+            # Convert to records format first
+            records = json.loads(dataset.to_json(orient="records"))
+            # Transform each value into {value: actual_value} format
+            formatted_data = []
+            for record in records:
+                row = []
+                for val in record.values():
+                    row.append({"value": val})
+                formatted_data.append(row)
+            return JsonResponse({"values": formatted_data})
         except Exception as e:
             return JsonResponse({"error": "JSON serialization failed", "details": str(e)}, status=500)
 

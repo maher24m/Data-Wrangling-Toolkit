@@ -26,23 +26,17 @@
   }
   
   .save-button {
-    background-color: #2ea44f;
-    color: #fff;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
     border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .save-button:hover {
-    background-color: #2c974b;
+    font-size: 1em;
   }
   
   .save-button:disabled {
-    background-color: #94d3a2;
+    background-color: #cccccc;
     cursor: not-allowed;
   }
   
@@ -86,12 +80,10 @@
   }
   
   .error-message {
-    padding: 16px;
-    margin: 16px;
-    background-color: #ffebe9;
-    border: 1px solid #ffc1c0;
-    border-radius: 6px;
-    color: #cf222e;
+    color: #dc3545;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2em;
   }
   
   .empty-state {
@@ -101,4 +93,28 @@
     height: 200px;
     color: #6a737d;
     font-style: italic;
+  }
+
+  .loading-spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+  }
+
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }

@@ -2,6 +2,7 @@
 
 import pandas as pd
 import os
+import json
 from api.storage import (
     get_dataset as _load,
     save_dataset as _save,
@@ -12,7 +13,7 @@ from api.storage import (
 
 def save_dataset(name, data):
     if isinstance(data, pd.DataFrame):
-        data = data.to_dict(orient="records")
+        data = data.to_dict(orient="split")
     return _save(name, data)
 
 def get_dataset(name, chunk_size=None):
@@ -24,7 +25,13 @@ def get_dataset(name, chunk_size=None):
         if not os.path.exists(file_path):
             return None
         return pd.read_parquet(file_path, engine="pyarrow", chunksize=chunk_size)
-    return _load(name)
+    return _load(name)  
+
+# def format_json(json_data):
+#     json_data = json_data[data[data]]
+#     formatted_json = json_data.to_dict(a)
+#     return
+
 
 def list_datasets():
     return _list_stored()

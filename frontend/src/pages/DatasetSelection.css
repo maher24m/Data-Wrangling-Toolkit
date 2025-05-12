@@ -1,44 +1,95 @@
-.data-selection-container {
+.dataset-selection-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 300px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #e1e4e8;
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
 }
 
-.data-selection-header {
+.sidebar-header {
   padding: 16px;
+  border-bottom: 1px solid #e1e4e8;
 }
 
-.data-selection-header h2 {
+.sidebar-header h2 {
   margin: 0;
+  font-size: 18px;
+  color: #24292e;
 }
 
-.data-selection-header p {
-  margin: 5px 0 0;
-}
-
-.data-selection-content {
+.main-content {
+  flex: 1;
   display: flex;
-  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #fff;
 }
 
-.selector-section {
-  flex: 0 0 300px;
+.spreadsheet-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
-.viewer-section {
-  flex: 1;
+.spreadsheet-header {
+  padding: 16px;
+  border-bottom: 1px solid #e1e4e8;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.spreadsheet-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #24292e;
+}
+
+.use-dataset-button {
+  background-color: #2ea44f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.use-dataset-button:hover {
+  background-color: #2c974b;
+}
+
+.use-dataset-button:disabled {
+  background-color: #94d3a2;
+  cursor: not-allowed;
 }
 
 .loading-message,
 .error-message,
 .empty-state {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 200px;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+}
+
+.loading-message {
   color: #6a737d;
-  font-style: italic;
 }
 
 .error-message {
@@ -46,6 +97,15 @@
   background-color: #ffebe9;
   border: 1px solid #ffc1c0;
   border-radius: 6px;
-  padding: 16px;
   margin: 16px;
+}
+
+.empty-state h2 {
+  margin: 0 0 8px 0;
+  color: #24292e;
+}
+
+.empty-state p {
+  margin: 0;
+  color: #6a737d;
 } 

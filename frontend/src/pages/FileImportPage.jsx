@@ -1,9 +1,11 @@
 // frontend/src/pages/FileImportPage.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import FileImport from "../components/FileImport";
 // import "./FileImport.css";
 
-const FileImportPage = ({ onDatasetUploaded }) => {
+const FileImportPage = () => {
+  const navigate = useNavigate();
   // State for FileImport component
   const [file, setFile] = useState(null);
   const [allowedFileTypes, setAllowedFileTypes] = useState([]);
@@ -27,6 +29,12 @@ const FileImportPage = ({ onDatasetUploaded }) => {
     return type.toUpperCase();
   };
 
+  const handleUploadSuccess = (datasetName) => {
+    setImportSuccess(true);
+    // Navigate to the spreadsheet view with the new dataset
+    navigate(`/spreadsheet/${datasetName}`);
+  };
+
   return (
     <FileImport
       file={file}
@@ -44,8 +52,7 @@ const FileImportPage = ({ onDatasetUploaded }) => {
       onUpload={(progress) => {
         setUploadProgress(progress);
         if (progress === 100) {
-          setImportSuccess(true);
-          onDatasetUploaded(datasetName);
+          handleUploadSuccess(datasetName);
         }
       }}
       formatFileSize={formatFileSize}

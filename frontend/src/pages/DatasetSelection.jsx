@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DatasetSelector from "../components/DatasetSelector";
-import DatasetViewer from "../components/DatasetViewer";
+import SpreadsheetComponent from "../components/SpreadsheetComponent";
 import "./DatasetSelection.css";
 
 const DatasetSelection = () => {
+  const navigate = useNavigate();
   // State management
   const [datasets, setDatasets] = useState([]);
   const [selectedDataset, setSelectedDataset] = useState(null);
@@ -11,7 +13,6 @@ const DatasetSelection = () => {
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isActivated, setIsActivated] = useState(false);
 
   // Fetch datasets when component mounts
   useEffect(() => {
@@ -74,28 +75,17 @@ const DatasetSelection = () => {
     }
   };
 
-  // Handle dataset activation
-  const handleDatasetActivate = async (datasetName) => {
+  // Handle use dataset
+  const handleUseDataset = async () => {
+    if (!selectedDataset) return;
+
     setLoading(true);
     setError(null);
     try {
-      setIsActivated(true);
-      // Uncomment when API is ready
-      /*
-      const response = await fetch(`/api/datasets/${datasetName}/activate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ dataset_name: datasetName }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to activate dataset');
-      }
-      */
+      // Navigate to the spreadsheet view with the selected dataset
+      navigate(`/spreadsheet/${selectedDataset}`);
     } catch (err) {
       setError(err.message);
-      setIsActivated(false);
     } finally {
       setLoading(false);
     }
@@ -113,42 +103,48 @@ const DatasetSelection = () => {
   };
 
   return (
-    <div className="data-selection-container">
-      <div className="data-selection-header">
-        <h2>Data Selection</h2>
-        <p>Select a dataset to view and analyze its contents</p>
+    <div className="dataset-selection-container">
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h2>Datasets</h2>
+        </div>
+        <DatasetSelector
+          datasets={datasets}
+          activeDataset={selectedDataset}
+          onDatasetSelect={handleDatasetSelect}
+          loading={loading}
+          error={error}
+        />
       </div>
 
-      <div className="data-selection-content">
-        <div className="selector-section">
-          <DatasetSelector
-            datasets={datasets}
-            activeDataset={selectedDataset}
-            onDatasetSelect={handleDatasetSelect}
-            loading={loading}
-            error={error}
-          />
-        </div>
-
-        <div className="viewer-section">
-          {loading ? (
-            <div className="loading-message">Loading dataset...</div>
-          ) : error ? (
-            <div className="error-message">{error}</div>
-          ) : selectedDataset ? (
-            <DatasetViewer
-              datasetName={selectedDataset}
-              data={datasetData}
-              columns={columns}
-              isActivated={isActivated}
-              onActivate={handleDatasetActivate}
-            />
-          ) : (
-            <div className="empty-state">
-              <p>Select a dataset to view its contents</p>
+      <div className="main-content">
+        {loading ? (
+          <div className="loading-message">Loading dataset...</div>
+        ) : error ? (
+          <div className="error-message">{error}</div>
+        ) : selectedDataset ? (
+          <div className="spreadsheet-container">
+            <div className="spreadsheet-header">
+              <h2>Dataset: {selectedDataset}</h2>
+              <button
+                className="use-dataset-button"
+                onClick={handleUseDataset}
+                disabled={loading}
+              >
+                Use Dataset
+              </button>
             </div>
-          )}
-        </div>
+            <SpreadsheetComponent
+              data={convertToSpreadsheetFormat(datasetData, columns)}
+              columnLabels={columns}
+            />
+          </div>
+        ) : (
+          <div className="empty-state">
+            <h2>No Dataset Selected</h2>
+            <p>Select a dataset from the sidebar to view its contents</p>
+          </div>
+        )}
       </div>
     </div>
   );

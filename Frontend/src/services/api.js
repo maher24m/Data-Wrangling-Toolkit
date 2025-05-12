@@ -38,14 +38,22 @@ export const fetchDatasets = async () => {
 /**
  * Fetch data for a specific dataset
  * @param {string} datasetName - Name of the dataset to fetch
+ * @param {number} [chunkSize=100] - Number of rows to fetch per request
  * @returns {Promise<Object>} Promise with the dataset data
  * @throws {Error} If the API request fails
  */
-export const fetchDatasetData = async (datasetName) => {
+export const fetchDatasetData = async (datasetName, chunkSize = 100) => {
   try {
+    console.log("Starting fetchDatasetData for:", datasetName);
+
     const response = await api.get(`/datasets/${datasetName}/`);
-    return response.data.data;
+    console.log("values", response.data.values)
+
+
+    // response.data is already a JavaScript object, no need to parse
+    return response.data.values;
   } catch (error) {
+    console.error("Error in fetchDatasetData:");
     throw new Error(`Failed to fetch dataset ${datasetName}: ${error.message}`);
   }
 };
