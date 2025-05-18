@@ -1,6 +1,9 @@
 from django.urls import path
-from .views import DataAnalysisView
+from .views import ApplyAnalysisView, AvailableAnalysesView
+
+app_name = 'analysis'
 
 urlpatterns = [
-    path("<str:dataset_name>/", DataAnalysisView.as_view(), name="data-analysis"),
+    path('<str:dataset_name>/analyze/', ApplyAnalysisView.as_view(), name='apply-analysis'),
+    path('', AvailableAnalysesView.as_view(), name='available-analyses'),
 ]

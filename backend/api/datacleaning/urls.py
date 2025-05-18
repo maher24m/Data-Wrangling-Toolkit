@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import DataCleaningView, AvailableCleaningToolsView
+from .views import ApplyCleaningView, AvailableCleaningsView
 
 urlpatterns = [
-    path("", DataCleaningView.as_view(), name="data-cleaning"),
-    path("tools/", AvailableCleaningToolsView.as_view(), name="available-cleaning-tools"),
+    path('<str:dataset_name>/clean/', ApplyCleaningView.as_view(), name='apply-cleaning'),
+    path('', AvailableCleaningsView.as_view(), name='available-cleanings'),
 ]
