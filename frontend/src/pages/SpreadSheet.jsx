@@ -2,19 +2,35 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import SpreadsheetComponent from "../components/SpreadsheetComponent";
-import { fetchDatasetData, saveDataset } from "../services/api";
+import {
+  fetchDatasetData,
+  saveDataset,
+  fetchDatasetColumns,
+} from "../services/api";
 import "./SpreadsheetPage.css";
 
 const SpreadsheetPage = () => {
   const { datasetId } = useParams();
   const [spreadsheetData, setSpreadsheetData] = useState([]);
+  const [columnLabels, setColumnLabels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!datasetId) return;
     fetchDataset();
+    // fetchColumnLabels();
   }, [datasetId]);
+
+  const fetchColumnLabels = async () => {
+    try {
+      const columns = await fetchDatasetColumns(datasetId);
+      setColumnLabels(columns);
+    } catch (error) {
+      console.error("Error fetching column labels:", error);
+      setError("Failed to load column labels");
+    }
+  };
 
   const fetchDataset = async () => {
     setLoading(true);
@@ -22,9 +38,9 @@ const SpreadsheetPage = () => {
 
     try {
       const response = await fetchDatasetData(datasetId);
-      let newResponse = []
-      for (let i = 0; i<10;i++){
-      newResponse.push(response[i])
+      let newResponse = [];
+      for (let i = 0; i < 10; i++) {
+        newResponse.push(response[i]);
       }
       if (newResponse) {
         console.log(newResponse);
@@ -71,7 +87,11 @@ const SpreadsheetPage = () => {
         </button>
       </div>
 
-      <SpreadsheetComponent data={spreadsheetData} onChange={handleChange} />
+      <SpreadsheetComponent
+        data={spreadsheetData}
+        onChange={handleChange}
+        columnLabels={columnLabels}
+      />
     </div>
   );
 };

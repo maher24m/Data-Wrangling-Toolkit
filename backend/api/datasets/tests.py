@@ -33,12 +33,27 @@ class DatasetTests(TestCase):
         response = self.client.get(reverse('datasets:dataset-detail', args=[self.dataset_name]))
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
-        self.assertIn('data', data)
-        self.assertEqual(len(data['data']), 3) 
+        self.assertIn('values', data)
+        self.assertEqual(len(data['values']), 3)
+
+    def test_get_dataset_columns(self):
+        """Test retrieving dataset columns"""
+        response = self.client.get(reverse('datasets:dataset-columns', args=[self.dataset_name]))
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertIn('columns', data)
+        self.assertEqual(data['columns'], ['A', 'B'])
 
     def test_get_nonexistent_dataset(self):
         """Test retrieving a dataset that doesn't exist"""
         response = self.client.get(reverse('datasets:dataset-detail', args=['nonexistent']))
+        self.assertEqual(response.status_code, 404)
+        data = json.loads(response.content)
+        self.assertIn('error', data)
+
+    def test_get_nonexistent_dataset_columns(self):
+        """Test retrieving columns for a dataset that doesn't exist"""
+        response = self.client.get(reverse('datasets:dataset-columns', args=['nonexistent']))
         self.assertEqual(response.status_code, 404)
         data = json.loads(response.content)
         self.assertIn('error', data)
@@ -57,6 +72,7 @@ class DatasetTests(TestCase):
         file_path = save_dataset('test_get', test_data)
         retrieved_data = get_dataset('test_get')
         self.assertIsNotNone(retrieved_data)
+        print(len(retrieved_data))
         self.assertEqual(len(retrieved_data), 3)
         if os.path.exists(file_path):
             os.remove(file_path)

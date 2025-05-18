@@ -12,7 +12,7 @@ class DatasetListView(View):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class DatasetDetailView(View):
-    """Fetches a dataset by name and ensures response is proper JSON"""
+    """Fetches a dataset by name and ensures response is JSON for the spreadsheet"""
     def get(self, request, dataset_name, chunk_size=None):
         dataset = get_dataset(dataset_name, chunk_size)
         if dataset is None:
@@ -93,3 +93,12 @@ class DatasetSaveView(View):
                 "error": "Failed to save dataset",
                 "details": str(e)
             }, status=500)
+        
+@method_decorator(csrf_exempt, name="dispatch")
+class get_dataset_columns(View):
+    """Returns the columns of a dataset"""
+    def get(self, request, dataset_name):
+        dataset = get_dataset(dataset_name)
+        if dataset is None:
+            return JsonResponse({"error": "Dataset not found"}, status=404)
+        return JsonResponse({"columns": dataset.columns.tolist()})

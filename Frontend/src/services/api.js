@@ -47,8 +47,7 @@ export const fetchDatasetData = async (datasetName, chunkSize = 100) => {
     console.log("Starting fetchDatasetData for:", datasetName);
 
     const response = await api.get(`/datasets/${datasetName}/`);
-    console.log("values", response.data.values)
-
+    console.log("values", response.data.values);
 
     // response.data is already a JavaScript object, no need to parse
     return response.data.values;
@@ -135,6 +134,16 @@ export const fetchAllowedFileTypes = async () => {
     return response.data.import_tools;
   } catch (error) {
     throw new Error(`Failed to fetch allowed file types: ${error.message}`);
+  }
+};
+
+export const fetchDatasetColumns = async (datasetId) => {
+  try {
+    const response = await api.get(`/datasets/${datasetId}/columns`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching column labels:", error);
+    throw error;
   }
 };
 

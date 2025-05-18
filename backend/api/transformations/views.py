@@ -1,53 +1,55 @@
-from django.views import View
-from django.http import JsonResponse
-from api.datasets.manager import get_dataset, save_dataset
-from api.transformations.factory import TransformationProcessorFactory
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-import json
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .factory import TransformationFactory
+from ..datasets.manager import get_dataset, save_dataset
 
-@method_decorator(csrf_exempt, name="dispatch")
-class ApplyTransformationView(View):
-    """Applies transformations to the active dataset"""
-    
-    def post(self, request):
-        dataset_name = request.POST.get("dataset_name")
-        transformations = request.POST.getlist("transformations")  # Expecting a JSON list
- 
-        if not dataset_name or not transformations:
-            return JsonResponse({"error": "Missing required parameters"}, status=400)
-
+class ApplyTransformationView(APIView):
+    def post(self, request, dataset_name):
         try:
-            transformations = json.loads(transformations[0])  # Parse JSON array
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format for transformations"}, status=400)
-
-        df = get_dataset(dataset_name)
-        if df is None:
-            return JsonResponse({"error": "Dataset not found"}, status=404)
-
-        try:
-            for transformation in transformations:
-                transformation_type = transformation.get("type")
-                column_name = transformation.get("column")
-
-                if column_name not in df.columns:
-                    return JsonResponse({"error": f"Column '{column_name}' not found"}, status=400)
-
-                processor = TransformationProcessorFactory.get_processor(transformation_type)
-                df = processor.apply(df, column_name)
-
-            transformed_name = f"{dataset_name}_transformed"
-            save_dataset(transformed_name, df.to_dict(orient="records"))
-            return JsonResponse({"success": True, "dataset": transformed_name})
-
+            # Get the dataset
+            df = get_dataset(dataset_name)
+            if df is None:
+                return Response(
+                    {"error": f"Dataset '{dataset_name}' not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Get transformation parameters
+            transformation_name = request.data.get('transformation')
+            parameters = request.data.get('parameters', {})
+            
+            if not transformation_name:
+                return Response(
+                    {"error": "Transformation name is required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Get and apply transformation
+            transformation = TransformationFactory.get_transformation(transformation_name)
+            df = transformation.transform(df, **parameters)
+            
+            # Save transformed dataset
+            save_dataset(dataset_name, df)
+            
+            return Response({
+                "message": "Transformation applied successfully",
+                "dataset": dataset_name
+            })
+            
+        except ValueError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
-            return JsonResponse({"error": "Transformation failed", "details": str(e)}, status=500)
+            return Response(
+                {"error": f"Error applying transformation: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-@method_decorator(csrf_exempt, name="dispatch")
-class AvailableTransformationToolsView(View):
-    """Returns a list of available transformations from the factory"""
+class AvailableTransformationsView(APIView):
     def get(self, request):
-        return JsonResponse({
-            "transformation_tools": TransformationProcessorFactory.list_processors()  # 🔥 Uses lazy-loaded factory
-        })
+        """List all available transformations"""
+        transformations = TransformationFactory.list_transformations()
+        return Response(transformations)

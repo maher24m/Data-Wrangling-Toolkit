@@ -1,6 +1,6 @@
 # api/datasets/urls.py
 from django.urls import path
-from .views import DatasetListView, DatasetDetailView, DatasetDeleteView, DatasetSaveView
+from .views import DatasetListView, DatasetDetailView, DatasetDeleteView, DatasetSaveView, get_dataset_columns
 
 app_name = "datasets"    # ← this must match the namespace you’ll use below
 
@@ -25,5 +25,9 @@ urlpatterns = [
         DatasetSaveView.as_view(),
         name="dataset-save"
     ), # Save a specific dataset
-
+    path(
+        "<str:dataset_name>/columns/",
+        get_dataset_columns.as_view(),
+        name="dataset-columns"
+    ), # Get the columns of a specific dataset
 ]
